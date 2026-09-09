@@ -1,11 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { motion, Variants } from "framer-motion";
 import { AnimatedGroup } from "@/components/ui/animated-group";
+import RoleSelectModal from "@/components/ui/role-select-modal";
+
 
 interface Iphone15ProProps extends React.SVGProps<SVGSVGElement> {
   width?: string | number;
@@ -135,6 +137,8 @@ const navItems = [
 ];
 
 export default function HeroSection() {
+  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+
   const textVariants: Variants = {
     hidden: { opacity: 0, filter: "blur(10px)", y: 20 },
     visible: {
@@ -154,9 +158,10 @@ export default function HeroSection() {
       {/* Background */}
       <div className="absolute inset-0 z-0 bg-[radial-gradient(125%_125%_at_50%_10%,#0a0a0a_40%,#4c1d95_100%)]" />
 
-      {/* Navbar */}
+            {/* Navbar */}
       <nav className="w-full flex justify-between items-center py-4 px-4 sm:px-8 border-b border-white/10 relative z-10">
         <div className="font-bold text-lg tracking-tight">SkillBridge</div>
+
         <div className="items-center gap-6 hidden md:flex">
           {navItems.map((item) => (
             <Link href={item.href} key={item.name}>
@@ -166,17 +171,20 @@ export default function HeroSection() {
             </Link>
           ))}
         </div>
+
         <div className="flex items-center gap-3">
-          <Link href="#">
-            <button className="px-4 py-1.5 text-sm font-medium border border-white/20 text-white hover:bg-white/10 transition-colors rounded-md">
-              Log in
-            </button>
-          </Link>
-          <Link href="#">
-            <button className="px-4 py-1.5 text-sm font-medium bg-violet-600 text-white hover:bg-violet-500 transition-colors rounded-md">
-              Get Started
-            </button>
-          </Link>
+          <button
+            onClick={() => setIsRoleModalOpen(true)}
+            className="px-4 py-1.5 text-sm font-medium border border-white/20 text-white hover:bg-white/10 transition-colors rounded-md"
+          >
+            Log in
+          </button>
+          <button
+            onClick={() => setIsRoleModalOpen(true)}
+            className="px-4 py-1.5 text-sm font-medium bg-violet-600 text-white hover:bg-violet-500 transition-colors rounded-md"
+          >
+            Get Started
+          </button>
         </div>
       </nav>
 
@@ -206,7 +214,10 @@ export default function HeroSection() {
             academia.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-            <button className="px-6 py-3 text-base font-medium rounded-md bg-violet-600 hover:bg-violet-500 text-white shadow-lg shadow-violet-600/20 transition-all">
+            <button
+              onClick={() => setIsRoleModalOpen(true)}
+              className="px-6 py-3 text-base font-medium rounded-md bg-violet-600 hover:bg-violet-500 text-white shadow-lg shadow-violet-600/20 transition-all"
+            >
               Get Started Free
             </button>
             <button className="px-6 py-3 text-base font-medium rounded-md border border-white/20 hover:bg-white/10 transition-colors">
@@ -253,6 +264,11 @@ export default function HeroSection() {
           />
         </div>
       </div>
+
+      <RoleSelectModal
+        isOpen={isRoleModalOpen}
+        onClose={() => setIsRoleModalOpen(false)}
+      />
     </div>
   );
 }
