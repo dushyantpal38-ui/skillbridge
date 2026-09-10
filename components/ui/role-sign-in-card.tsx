@@ -1,19 +1,11 @@
 "use client";
-
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, useMotionValue, useTransform } from "motion/react";
-import { Mail, Lock, Eye, EyeClosed, ArrowRight, type LucideIcon } from "lucide-react";
+import { Mail, Lock, Eye, EyeClosed, ArrowRight, LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-
-export interface RoleSignInCardProps {
-  roleLabel: string;
-  roleIcon: LucideIcon;
-  redirectPath: string;
-  subtitle?: string;
-}
 
 function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   return (
@@ -54,13 +46,28 @@ function GoogleIcon({ className }: { className?: string }) {
   );
 }
 
+export interface RoleSignInCardProps {
+  /** Displayed under the role badge, e.g. "Student" */
+  roleLabel: string;
+  /** Saved to localStorage as the logged-in role, e.g. "student" */
+  roleId: string;
+  /** Icon shown in the small role badge above the heading */
+  roleIcon: LucideIcon;
+  /** Where to send the user after "signing in" (any credentials are accepted) */
+  redirectPath: string;
+  /** Optional override for the subtitle line */
+  subtitle?: string;
+}
+
 export function RoleSignInCard({
   roleLabel,
+  roleId,
   roleIcon: RoleIcon,
   redirectPath,
   subtitle,
 }: RoleSignInCardProps) {
   const router = useRouter();
+
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -85,29 +92,19 @@ export function RoleSignInCard({
     mouseY.set(0);
   };
 
+  // Demo auth: any email/password combination is accepted.
+  // Replace this with a real auth call (e.g. NextAuth, your API) when ready.
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Demo auth: accepts any credentials and redirects directly to dashboard (replace with real auth later)
     setTimeout(() => {
+      localStorage.setItem("userRole", roleId);
       router.push(redirectPath);
     }, 900);
   };
 
-  const resolvedSubtitle = subtitle ?? `Sign in to your ${roleLabel} account`;
-
   return (
     <div className="min-h-screen w-screen bg-black relative overflow-hidden flex items-center justify-center">
-      {/* Back link in top-left corner */}
-      <div className="absolute top-6 left-6 z-20">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 text-xs text-white/60 hover:text-white transition-colors duration-200"
-        >
-          ← Back
-        </Link>
-      </div>
-
       {/* Base gradient — deep, rich purple matching the homepage */}
       <div className="absolute inset-0 bg-gradient-to-b from-violet-700/40 via-violet-950/50 to-black" />
 
@@ -136,6 +133,14 @@ export function RoleSignInCard({
       {/* Ambient glow spots */}
       <div className="absolute left-1/4 top-1/4 w-96 h-96 bg-white/5 rounded-full blur-[100px] animate-pulse opacity-40" />
       <div className="absolute right-1/4 bottom-1/4 w-96 h-96 bg-white/5 rounded-full blur-[100px] animate-pulse delay-1000 opacity-40" />
+
+      {/* Back to role selection */}
+      <Link
+        href="/"
+        className="absolute top-5 left-5 z-20 text-xs text-white/50 hover:text-white transition-colors"
+      >
+        ← Back
+      </Link>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -259,7 +264,7 @@ export function RoleSignInCard({
                 }}
               />
 
-              {/* Logo + header */}
+              {/* Role badge + header */}
               <div className="text-center space-y-1 mb-5">
                 <motion.div
                   initial={{ scale: 0.5, opacity: 0 }}
@@ -267,13 +272,12 @@ export function RoleSignInCard({
                   transition={{ type: "spring", duration: 0.8 }}
                   className="mx-auto w-11 h-11 rounded-full border border-white/10 flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-violet-500/20 to-transparent"
                 >
-                  <RoleIcon className="w-5 h-5 text-violet-300 relative z-10" />
+                  <RoleIcon className="w-5 h-5 text-violet-300" />
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50" />
                 </motion.div>
 
-                {/* Role pill badge */}
-                <div className="pt-1.5 pb-0.5">
-                  <span className="inline-flex items-center rounded-full border border-violet-400/30 bg-violet-500/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-violet-300">
+                <div className="flex items-center justify-center gap-1.5 mb-1">
+                  <span className="inline-flex items-center rounded-full border border-violet-400/30 bg-violet-500/10 px-2 py-0.5 text-[10px] font-medium tracking-wide text-violet-300 uppercase">
                     {roleLabel}
                   </span>
                 </div>
@@ -293,7 +297,7 @@ export function RoleSignInCard({
                   transition={{ delay: 0.3 }}
                   className="text-white/60 text-xs"
                 >
-                  {resolvedSubtitle}
+                  {subtitle ?? `Sign in to your ${roleLabel} account`}
                 </motion.p>
               </div>
 
@@ -491,12 +495,15 @@ export function RoleSignInCard({
                   <div className="flex-grow border-t border-white/5" />
                 </div>
 
-                {/* Google sign in */}
+                {/* Google sign in — also accepts the demo flow */}
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   type="button"
-                  onClick={() => router.push(redirectPath)}
+                  onClick={() => {
+                    localStorage.setItem("userRole", roleId);
+                    router.push(redirectPath);
+                  }}
                   className="w-full relative group/google"
                 >
                   <div className="absolute inset-0 bg-white/5 rounded-lg blur opacity-0 group-hover/google:opacity-70 transition-opacity duration-300" />
